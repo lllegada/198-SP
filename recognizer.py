@@ -9,7 +9,7 @@ import cv2
 import numpy as np 
 
 
-image = cv2.imread("tanga.png")
+image = cv2.imread("hello.jpg")
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 denoise = cv2.fastNlMeansDenoising(gray,None,10,7,21)
 blur = cv2.GaussianBlur(denoise, (5, 5), 0)
@@ -41,20 +41,22 @@ for c in contours:
 				# 
 				indices.append(index)
 				# contours.remove(cn)
+
 print ('1st: Number of contours are: %d -> ' %len(contours))
 contours2 =[]
-for i in indices:
-	print("indices")
-	print(i)
-	for ci,c in enumerate(contours):
-		print ('2nd: Number of contours are: %d -> ' %len(contours))
-		print("CI")
-		print(ci)
-	# if len(indices) != 0:
-	# 	del contours[i]
+contours2 = [c for i,c in enumerate(contours) if i not in indices]
+# for i in indices:
+# 	print("indices")
+# 	print(i)
+# 	for ci,c in enumerate(contours):
+# 		print ('2nd: Number of contours are: %d -> ' %len(contours))
+# 		print("CI")
+# 		print(ci)
+# 	 if len(indices) != 0:
+# 	 	del contours[i]
 	
-		if(i != ci):
-			contours2.append(c)
+# 		if(i != ci):
+# 			contours2.append(c)
 			
 
 for c in contours2:
