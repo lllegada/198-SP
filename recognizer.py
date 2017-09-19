@@ -29,6 +29,8 @@ for c in contours:
 	
 	for index,cn in enumerate(contours):
 		print('NEW CONTOUR')
+		# i (x) - vertex points on the upper - left
+		# j (y) - vertex points or the lower - right
 		[i,j,k,l] = cv2.boundingRect(cn)
 		# print(cn)
 		# print ('x: %d \n y: %d \n x+w: %d \n y+h: %d \n i: %d \n j:%d \n i+k:%d \n l:%d' %(x,y,x+w,y+h,i,j,i+k,l))
