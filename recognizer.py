@@ -161,6 +161,7 @@ coinside_contour(contours,indices)
 contours2 = isolate_contours(contours,indices,contours2)
 
 
+<<<<<<< HEAD
 # SORT contours2 according t the x values in increasing order(largest pixel value at the last)
 contours2,boundingBoxes = sort_contours(contours2)
 
