@@ -142,7 +142,7 @@ def sort_contours(contours2):
 	key=lambda b:b[1][0], reverse=False))
 	return contours2,boundingBoxes
 
-image = cv2.imread("pic10.jpg")
+image = cv2.imread("single2.png")
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 denoise = cv2.fastNlMeansDenoising(gray,None,10,7,21)
 blur = cv2.GaussianBlur(denoise, (5, 5), 0)
@@ -161,7 +161,7 @@ coinside_contour(contours,indices)
 contours2 = isolate_contours(contours,indices,contours2)
 
 
-<<<<<<< HEAD
+
 # SORT contours2 according t the x values in increasing order(largest pixel value at the last)
 contours2,boundingBoxes = sort_contours(contours2)
 
