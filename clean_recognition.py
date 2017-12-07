@@ -141,23 +141,26 @@ def feat_extract(folder_path):
 	
 				crop1 = cv2.resize(padded_img,(64,64))
 				cv2.imshow('extracted',crop1)
-				blank = np.zeros((64, 64), np.uint8)
-
-				corners = cv2.goodFeaturesToTrack(crop1, 5, 0.02, 10)
-				corners = np.int0(corners)   
 				
-				##Make all black image of 64x64 dimensions
-				img = np.zeros((64,64, 3))
-				for corner in corners: 
-					x, y = corner.ravel()
-					cv2.circle(crop1, (x, y), 3, (80,250, 150), -1)
-					cv2.imshow('with corners',crop1)
-
-					##Put a white color for every pixel in the 64x64 black image that has a corner 
-					img[y,x] = 255 
-				##Flatten image reduces 2D array to 1D
-				##Data will contain all the pixels in 'img' in 1D form
-				data.append(img.flatten())
+				winSize = (64,64)
+				blockSize = (16,16)
+				blockStride = (8,8)
+				cellSize = (8,8)
+				nbins = 9
+				derivAperture = 1
+				winSigma = -1.
+				histogramNormType = 0
+				L2HysThreshold = 0.2
+				gammaCorrection = 1
+				nlevels = 64
+				signedGradient = True
+				 
+				hog = cv2.HOGDescriptor(winSize,blockSize,blockStride,cellSize,nbins,derivAperture,winSigma,histogramNormType,L2HysThreshold,gammaCorrection,nlevels, signedGradient) 
+				# hog = cv2.HOGDescriptor(winSize,blockSize,blockStride,cellSize,nbins,derivAperture,winSigma,histogramNormType,L2HysThreshold,gammaCorrection,nlevels, useSignedGradients)
+				descriptor = hog.compute(crop1)  
+				
+				
+				data.append(descriptor)
 				##Labels contains all the labels of the image ..see line 46
 				labels.append((label))
 
@@ -167,7 +170,7 @@ def feat_extract(folder_path):
 if __name__ == '__main__':
 	#Change the value inside feat extract into the name of your folder containing the training set (only works if inside Python directory)
 	train_data,train_labels = feat_extract("train_new")
-				
+	train_data = np.squeeze(train_data) #Equivalent of flatten except that whole array
 		
 	####convert data and labels into a numpy array 
 	train_data = np.array(train_data)
@@ -178,7 +181,7 @@ if __name__ == '__main__':
 	#TRAINING
 	model3 = svm.SVC(gamma = 0.0001, C = 100)
 	print("Unique: ", np.unique(train_labels))
-	
+
 	##Reassign the values to X_train and Y_train for name convention purposes
 	X_train = train_data 
 	Y_train =	train_labels
@@ -194,23 +197,13 @@ if __name__ == '__main__':
 	#----Change the value inside feat extract into the name of your folder containing 
 	#---- the testset (only works if inside Python directory)
 	X_test,Y_test = feat_extract("testset")
-
+	X_test = np.squeeze(X_test) #Equivalent of flatten except that whole array
 	print("Xtest: ", len(X_test))
 
-
-
-	# model.predict(X_train[-2].reshape(X_train.shape))
-	##Sample testing data using the training set
-	# test_img1 = X_train[0]
-	# test_img2 = X_train[1]
-
-
-	# X_test = np.array(X_test)
-	# X_test = np.array([X_test[0],X_test[11]])
-	# Y_test = ['A','A']
-	# Y_pred = model.predict(X_test)
-	prediction = model.predict(X_test)
+	prediction = model_hand.predict(X_test)
+	scoring = model_hand.score(X_test, Y_test) #Tests the confidence level of the prediction
 	print(prediction)
+	print(scoring)
 
 	#=====================================
 	cv2.waitKey(0)
