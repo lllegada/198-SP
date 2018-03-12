@@ -68,6 +68,8 @@ def remove_noise(contours0):
 		[x,y,w,h] = cv2.boundingRect(c)
 		if ((w*h) >= threshold_area ):
 			contours.append(c)
+	# print("Length of unfiltered contours: ",len(contours0))
+	# print("Length of filtered contours: ",len(contours))
 	return contours
 
 
@@ -85,7 +87,10 @@ def remove_coinsides(contours):
 				if((((j+l) < (y+h)) and ((j+l) > y )) and ((j < (y+h)) and (j > y))):
 			
 					indices.append(index)
-					
+					# contours.remove(cn)
+	# print("num of contours",len(contours))
+	# print("# of indices:",len(indices))
+	# print ('1st: Number of contours are: %d -> ' %len(contours))
 
 	contours2 = [c for i,c in enumerate(contours) if i not in indices]
 	return contours2
@@ -93,6 +98,33 @@ def remove_coinsides(contours):
 
 
 
+
+	
+# n=0
+# for c in contours2:	
+# 	n = n+1
+# 	print(n)
+# 	x, y, w, h = cv2.boundingRect(c)
+# 	for index,cn in enumerate(contours2):
+# 		[i,j,k,l] = cv2.boundingRect(cn)
+# 		if((k*l) < (ave_area)):
+# 			midpoint = i + (k/2)
+# 			print("midpoint",midpoint)
+# 			print("x+w",x+w)
+# 			if((midpoint > x ) and (midpoint < x+w) and x!=i):
+# 				print("IN")
+# 				y = j
+				
+# 				break
+# 	two_contours = [x,y,w,h]
+# 	contours3.append(two_contours)
+
+# print("length of contours3",len(contours3))
+	
+# for character in contours3:
+# 		# [x, y, w, h] = cv2.boundingRect(c)
+# 		cv2.rectangle(image, (character[0], character[1]), (character[2], character[3]), (100, 100 , 80), 6)
+# 		cv2.imshow("Fixing",image)
 
 
 
@@ -163,7 +195,7 @@ def get_globalcut(differences,globalCut,localCut):
 	print("new global cut: ", globalCut)
 	return intersection,globalCut
 def get_words(contours2,intersection):
-	x1,y1,h1 = None,None,None
+	x1,y1 = None,None
 	i=0
 	while i < len(contours2)-1:
 		c = contours2[i]
@@ -171,16 +203,13 @@ def get_words(contours2,intersection):
 		if(x1 is None):
 			x1 = c[0]
 		if(y1 is None):
-			y1 = c[1]                         
-		if h1 is None:
-			h1 = c[1] + c[3]
+			y1 = c[1]
 	#adjust height of the y1 to align with the height of the taller contour
 		if(y1 > d[1]): 
 			y1 = d[1] #y1 is the the y-coordinate stored in words array
 		# else:
 		# 	d[1] = y1
-		if h1 < d[1] + d[3]:
-			h1 = d[1] + d[3]
+			
 		print("i: ",i)
 	#if contour[i+1][y+h] > contour[i][y+h]
 
@@ -188,21 +217,18 @@ def get_words(contours2,intersection):
 		if(i in intersection): 
 			print("Pumasok si i:")
 			# print(i)
-			x2 = c[0] + c[2] #x+w 
-			y2 = h1 #y+h
-			# y2 = c[1] + c[3] #y+h
+			x2 = c[0] + c[2] #x+w
+			y2 = c[1] + c[3] #y+h
 			box = [x1,y1,x2,y2]
 			words.append(box)
-			x1 = d[0] #set the curval to the recent lookout val
+			x1 = d[0]
 			y1 = d[1]
-			x2 = None 
+			x2 = None
 			y2 = None
-			h1 = None
 		i=i+1
-	if(i == len(contours2)-1): #if lagpas na sya sa last 2 element, then consider it as out of bounds(meaning patapos na ang words)
+	if(i == len(contours2)-1): #if lagpas na sya sa last 2 element, then consider it as out of bounds
 		x2 = d[0] + d[2] #x+w
-		y2 = h1 #y+h
-		# y2 = d[1] + d[3] #y+h
+		y2 = d[1] + d[3] #y+h
 		box = [x1,y1,x2,y2]
 		words.append(box)
 	return words
@@ -237,7 +263,7 @@ def find_trueCuts(differences,rare,intersection):
 		if(d>= (len(differences)-3)):
 			if d == end_max or d == end_max - 1:
 				avg_end=differences[end_max-1]
-			else:  
+			else:
 				end=range(d+1,end_max+1)
 		else:
 			end=range(d+1,(d+3)+1)
@@ -271,24 +297,20 @@ def draw_words(words,true_labels):
 	n=0
 	print("LEN: ",len(words))
 	for i,box in enumerate(words):
-		print(i)
-		[x, y, w, h] = cv2.boundingRect(c)
-		print("box[0]: ",box[0])
-		print("box[1]: ",box[1])               
-		print("box[2]: ",box[2])
-		print("box[3]: ",box[3])
-		cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), (0, 0 , 0), 6)
+
+
+		# [x, y, w, h] = cv2.boundingRect(c)
+		# cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), (0, 0 , 0), 6)
 		cv2.imshow("WORDS",image)
 		x,y = box[0],box[1]
 		temp_img =  image[y:box[3],x:box[2]]
 		temp_img,_ = otsu_preprocess(temp_img)
 		temp_img = make_pad(temp_img)
-		print(temp_img.shape)
 		cv2.imshow("TEMP_IMG",temp_img)
 		cv2.waitKey(0)
 		label = true_labels
 		nstring = str(n)
-		# cv2.imwrite(label + nstring + ".jpg",temp_img)
+		cv2.imwrite(label + nstring + ".jpg",temp_img)
 		n = n +1
 
 def new_line(rect,line_begin_idx,ix,contours2,differences,sliding,localCut,globalCut,words,true_labels):
@@ -296,7 +318,7 @@ def new_line(rect,line_begin_idx,ix,contours2,differences,sliding,localCut,globa
 	# sort the previous line by their x
 	rect[line_begin_idx:ix] = sorted(rect[line_begin_idx:ix], key=lambda b: b[0])
 	contours2 = rect[line_begin_idx:ix] #hanggang saan sa rect ang line na yan
-	print("Inside new_line checking length of contours: ",len(contours2))
+
 	differences = get_differences(contours2,differences)
 	sliding,localCut = get_localcut(differences,localCut,sliding)
 	intersection,globalCut = get_globalcut(differences,globalCut,localCut)
@@ -351,7 +373,7 @@ def segmentation(contours2,differences,sliding,localCut,globalCut,words,true_lab
 	line_bottom = rect[0][1]+rect[0][3]-1 #y+h amo na ang bottom mo
 	line_begin_idx = 0
 	p=0
-	print("RECT SIZE: ",len(rect))
+
 	# print("length of rect:",len(rect))
 	for ix in range(len(rect)):
 		# when a new box's top is below current line's bottom
@@ -421,11 +443,9 @@ if __name__ == '__main__':
 			for c in contours2:
 				x, y, w, h = cv2.boundingRect(c)
 				print(x,y,w,h)
-
 				# cv2.rectangle(image, (x, y), (x+w, y+h), (145, 100, 0), 6)
 				cv2.imshow("No coinsides",image)
-
-			print("length of contours2", len(contours2))
+			# print("length of contours2", len(contours2))
 			segmentation(contours2,differences,sliding,localCut,globalCut,words,true_labels)
 			#------------- NEXT LINES ARE FOR NOTING EACH CHARACTER IN THE IMAGE----------
 			contours3 = [cv2.boundingRect(c) for c in contours2]
