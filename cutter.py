@@ -1,3 +1,9 @@
+# Code must ONLY be used if image has been manually cropped to contain only the bond paper part
+# DO NOT USE for freshly captured images that have not been cropped yet.
+
+
+
+
 import glob
 import cv2
 import numpy as np 	
@@ -8,23 +14,18 @@ import os
 import skimage
 from skimage import io
 from PIL import Image
+from utils import get_median_area
+
 def cut_dataset(folder_path):
 	numfiles = 0
-	n=0
+	
 	for root, dirs, files in os.walk(folder_path):
-			# print ("root:",root)
-			# print ("dirs: ",dirs)
-			# print ("files :",files)
-			# shuffle(files)
 		for image_path in files:   
+			n=0
 			numfiles = numfiles + 1
+			image_name = image_path[0]
 			print("\nimage_path: ",image_path)
 			image = cv2.imread(folder_path + "/" + image_path)
-			# label = image_path[:1] #store as label the first character only of the image path/image name
-			# print("\nLabels: ", label)
-			# image = cv2.resize(image, (64,64), interpolation = cv2.INTER_AREA)
-			# cv2.imshow("resized", image)
-			# image = cv2.imread('cut_me.jpg')
 			gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 
@@ -36,11 +37,7 @@ def cut_dataset(folder_path):
 			kernel = np.ones((3,3), np.uint8)
 			opening = cv2.morphologyEx(filtered,cv2.MORPH_OPEN, kernel, iterations = 2)
 			closing = cv2.morphologyEx(opening, cv2.MORPH_CLOSE, kernel, iterations =2)
-			# kernel2 = np.ones((17,17),np.uint8)
-			# closing = cv2.morphologyEx(closing, cv2.MORPH_CLOSE, kernel2, iterations =1)
-			# closing = opening
-			# # cv2.namedWindow('closing',cv2.WINDOW_NORMAL)
-			# # cv2.namedWindow('res',cv2.WINDOW_NORMAL)
+
 			cv2.namedWindow('filtered',cv2.WINDOW_NORMAL)
 			cv2.namedWindow('opening',cv2.WINDOW_NORMAL)
 			cv2.imshow("filtered",filtered)
@@ -61,7 +58,6 @@ def cut_dataset(folder_path):
 			temp = 0
 
 			indices=[] #stores values of the contours that are co-inside the contour
-			# print("Num of contours before getting the ROI contour: ",len(contours0))
 			for c in contours0:
 				[x, y, w, h] = cv2.boundingRect(c)
 				current_area = w*h
@@ -79,14 +75,8 @@ def cut_dataset(folder_path):
 			for ic,c in enumerate(contours):
 				x, y, w, h = cv2.boundingRect(c)
 				
-				# cv2.rectangle(image, (x, y), (x+w, y+h), (145, 100, 0), 4)
-
-
 			for c in contours:
 				x, y, w, h = cv2.boundingRect(c)
-				
-				# cv2.rectangle(image, (x, y), (x+w, y+h), (145, 100, 0), 2)
-
 
 			indices=[] #stores values of the contours that are co-inside the contour
 			for c in contours:
@@ -98,20 +88,22 @@ def cut_dataset(folder_path):
 							indices.append(index)
 
 			contours2 = [c for i,c in enumerate(contours) if i not in indices]
-			
+			print("Length of contours2: ",len(contours2))
 			for c in contours2:
 				x, y, w, h = cv2.boundingRect(c)
-				# print(x,y,w,h)
-				# cv2.rectangle(image, (x, y), (x+w, y+h), (145, 100, 0), 2)
 				height = y+h
 				width = x+w
 				roi = image[y:height, x:width]
-				name = "letter_" + str(n)
-				path = "C:/Users/User/AppData/Local/Programs/Python/Python36-32/cursive_small/"
-				cv2.imwrite(path + name + ".jpg", roi)
+				
+				path = "C:/Users/User/AppData/Local/Programs/Python/Python36-32/shebna_big_initial/"
+				cv2.imwrite(path + image_name + "_m_"+str(n)  + ".jpg", roi)
 				n = n+1
 			cv2.namedWindow('final',cv2.WINDOW_NORMAL)
 			cv2.imshow('final',image)
 			# cv2.waitKey(0)
 		print("Number of files: ", numfiles)
-cut_files = cut_dataset("cursive_chopped_raw")
+
+
+
+# Replace folder name (must be in the same directory as the code)
+cut_files = cut_dataset("tobecut")

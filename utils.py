@@ -19,6 +19,7 @@ import numpy as np
 import math
 from sklearn import model_selection,svm
 import sys
+import statistics
 
 def resizeTo28(img):
 	r = 28.0 / img.shape[1]
@@ -121,6 +122,33 @@ def get_ave_area(contours0):
 	ave_area = temp/len(contours0)
 	print("average area: ",ave_area)
 	return ave_area
+# def get_midpoint(contours):
+# 	contours_length = len(contours)
+# 	if(contours_length%2 == 0): #Even
+# 		midpoint_index = contours_length/2
+# 	else: #Odd
+# 		mid_initial_index = contours_length/2
+# # 		midpoint =  (contours[mid_initial_index] + contours[mid_initial_index+1])/2
+	
+# 	return contours[midpoint_index]
+def get_median_area(contours0):
+	# Sort the area ascending
+	# Get the length of the sorted contours
+	# find the midpoint
+	# get the midpoint's area
+	areas = []
+	contours = [cv2.boundingRect(c) for c in contours0]
+	# for c in contours0:
+	# 	[x,y,w,h] = cv2.boundingRect(c)
+	# 	sorted_contours = [x,y,w,h]
+	sorted_contours = sort_LR(contours)
+	for c in sorted_contours:
+		[x,y,w,h] =c
+		area = w*h
+		areas.append(area)
+	midpoint = statistics.median(areas)
+	print(midpoint)
+	return midpoint
 
 def show_contours(contours,image):
 	
@@ -136,7 +164,7 @@ def remove_noise(contours0):
 	contours = []
 	ave_area = get_ave_area(contours0)
 	# print("average area: ",ave_area)
-	threshold_area = (0.010*(ave_area))
+	threshold_area = (0.10*(ave_area))
 	# print("threshold area: ",threshold_area)
 	# contours = [c for cv2.boundingRect(c) in contours0 if (((c[0]+c[2])*(c[1]+c[3])) >= ave_area)]
 	for c in contours0:
@@ -252,3 +280,13 @@ def preprocess(image):
 def sort_LR(contours):
 	contours.sort(key=lambda b: b[0])
 	return contours
+
+
+def resize_img(thresh):
+	h,w = thresh.shape[:2]
+	ar = w / h 
+	nw = 1300
+	nh = int(nw / ar)        
+	nimage = cv2.resize(thresh,(nw,nh))
+	
+	return nimage
