@@ -25,15 +25,15 @@ def resizeTo28(img):
 	r = 28.0 / img.shape[1]
 	dim = (28, int(img.shape[0] * r))
 	res = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
-	cv2.imshow("To28",res)
-	cv2.waitKey(1)
+	# cv2.imshow("To28",res)
+	# cv2.waitKey(1)
 	return res
 def resizeTo20(img):
 	# r = 20.0 / img.shape[1]
 	# dim = (20, int(img.shape[0] * r))
 	res = cv2.resize(img, (20,20), interpolation = cv2.INTER_AREA)
-	cv2.imshow("To20",res)
-	cv2.waitKey(1)
+	# cv2.imshow("To20",res)
+	# cv2.waitKey(1)
 	return res
 def get_ROI(image,contours):
 	# for c in contours:
@@ -97,9 +97,9 @@ def transform20x20(image):
 
 	patch = get_ROI(prepimage,contours)
 	centered = center_image(patch,contours)
-	cv2.imshow("patch",patch)
-	cv2.imshow("centered",centered)
-	cv2.waitKey(1)
+	# cv2.imshow("patch",patch)
+	# cv2.imshow("centered",centered)
+	# cv2.waitKey(1)
 	
 	return centered
 def get_max_area_contour(contours):
@@ -153,7 +153,7 @@ def get_median_area(contours0):
 def show_contours(contours,image):
 	
 	for c in contours:
-		x,y,w,h = cv2.boundingRect(c)
+		x,y,w,h = cv2.boundingRect(c)	
 		print(x,y,w,h)
 		cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 40), 1)
 		cv2.imshow("SHOWCONTOURS",image)
@@ -164,7 +164,7 @@ def remove_noise(contours0):
 	contours = []
 	ave_area = get_ave_area(contours0)
 	# print("average area: ",ave_area)
-	threshold_area = (0.10*(ave_area))
+	threshold_area = (0.010*(ave_area))
 	# print("threshold area: ",threshold_area)
 	# contours = [c for cv2.boundingRect(c) in contours0 if (((c[0]+c[2])*(c[1]+c[3])) >= ave_area)]
 	for c in contours0:
@@ -285,7 +285,7 @@ def sort_LR(contours):
 def resize_img(thresh):
 	h,w = thresh.shape[:2]
 	ar = w / h 
-	nw = 1300
+	nw = 800
 	nh = int(nw / ar)        
 	nimage = cv2.resize(thresh,(nw,nh))
 	
